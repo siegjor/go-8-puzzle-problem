@@ -1,44 +1,43 @@
 package main
 
 import (
-	"fmt"
 	"n-puzzle-problem/lists"
 	"n-puzzle-problem/nodes"
+	"n-puzzle-problem/uis"
+	"time"
 )
 
 func main() {
-	matrix := [3][3]uint8{{2, 3, 4}, {1, 7, 8}, {5, 0, 6}}
-	fmt.Println("matrix:", len(matrix))
-	originNode := nodes.Node{State: matrix}
-	fmt.Println(originNode)
+	matrix := [3][3]uint8{{1, 8, 2}, {0, 4, 3}, {7, 6, 5}}
 
-	// openList := []*nodes.Node{&originNode}
+	startTime := time.Now()
+	originNode := nodes.Node{State: matrix}
+
 	openList := lists.List[nodes.Node]{}
 	openList.Insert(originNode, originNode.TotalCost)
-	closedList := []*nodes.Node{}
+	closedList := lists.List[nodes.Node]{}
 
-	// foundGoal := false
-	for i := range [5]uint8{} {
-		fmt.Println(i)
+	foundGoal := false
+	for !foundGoal {
 		currentNode := openList.GetFirst()
+		// uis.PrintNode(&currentNode)
 
 		generatedChildren := currentNode.GenChildren()
+		// uis.PrintChildren(generatedChildren)
 
-		closedList = append(closedList, &currentNode)
+		closedList.Insert(currentNode, currentNode.TotalCost)
 		openList.RemoveFirst()
 
 		for _, child := range generatedChildren {
-			if openList.Contains(child) {
-
+			if !openList.Contains(child) && !closedList.Contains(child) {
+				openList.Insert(*child, child.TotalCost)
 			}
-			// openList.ForEach(func(node nodes.Node) {
-			// 	if child.Equals(&node) {
+		}
 
-			// 	}
-			// })
-			// if !slices.Contains(openList, &node) {
-			// 	openList = append(openList, &node)
-			// }
+		foundGoal = currentNode.IsGoal()
+		if foundGoal {
+			elapsedTime := time.Since(startTime)
+			uis.PrintResults(&currentNode, &openList, &closedList, &elapsedTime)
 		}
 	}
 }

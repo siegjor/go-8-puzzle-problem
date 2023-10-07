@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"n-puzzle-problem/heuristics"
 )
 
@@ -9,12 +8,13 @@ type Node struct {
 	parent                           *Node
 	State                            [3][3]uint8
 	children                         []*Node
-	depth, heuristicValue, TotalCost uint64
+	Depth, HeuristicValue, TotalCost uint64
+	lastMovement                     string
 }
 
 type Pos struct {
-	X uint8
-	Y uint8
+	X int8
+	Y int8
 }
 
 const SELECTED_STRATEGY = heuristics.UNIFORM_COST
@@ -24,8 +24,8 @@ func getEmptyTileCoords(node *Node) Pos {
 	for i := range node.State {
 		for j := range node.State[i] {
 			if node.State[i][j] == 0 {
-				emptyTilePos.X = uint8(i)
-				emptyTilePos.Y = uint8(j)
+				emptyTilePos.X = int8(i)
+				emptyTilePos.Y = int8(j)
 				break
 			}
 		}
@@ -34,41 +34,37 @@ func getEmptyTileCoords(node *Node) Pos {
 	return emptyTilePos
 }
 
-func (node *Node) GenChildren() []*Node {
-	emptyTilePos := getEmptyTileCoords(node)
+func (nodePtr *Node) GenChildren() []*Node {
+	emptyTilePos := getEmptyTileCoords(nodePtr)
 
 	if emptyTilePos.X+1 <= 2 {
-		fmt.Println("> moved down")
-		moveEmptyTileDown(*node, emptyTilePos)
+		moveEmptyTileDown(nodePtr, emptyTilePos)
 	}
 
 	if emptyTilePos.X-1 >= 0 {
-		fmt.Println("> moved up")
-		moveEmptyTileUp(*node, emptyTilePos)
+		moveEmptyTileUp(nodePtr, emptyTilePos)
 	}
 
 	if emptyTilePos.Y+1 <= 2 {
-		fmt.Println("> moved right")
-		moveEmptyTileRight(*node, emptyTilePos)
+		moveEmptyTileRight(nodePtr, emptyTilePos)
 	}
 
 	if emptyTilePos.Y-1 >= 0 {
-		fmt.Println("> moved left")
-		moveEmptyTileLeft(*node, emptyTilePos)
+		moveEmptyTileLeft(nodePtr, emptyTilePos)
 	}
 
-	for _, child := range node.children {
-		child.depth = node.depth + 1
+	for _, child := range nodePtr.children {
+		child.Depth = nodePtr.Depth + 1
 		calculateTotalCost(child)
 	}
 
-	return node.children
+	return nodePtr.children
 }
 
 func calculateTotalCost(node *Node) {
 	switch SELECTED_STRATEGY {
 	case heuristics.UNIFORM_COST:
-		node.TotalCost = node.depth
+		node.TotalCost = node.Depth
 		break
 	case heuristics.A_STAR_MANHATTAN:
 		break
@@ -79,36 +75,40 @@ func calculateTotalCost(node *Node) {
 	}
 }
 
-func moveEmptyTileUp(node Node, emptyTilePos Pos) {
+func moveEmptyTileUp(node *Node, emptyTilePos Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X-1][emptyTilePos.Y]
 	newState[emptyTilePos.X-1][emptyTilePos.Y] = 0
 
-	node.children = append(node.children, &Node{State: newState, parent: &node})
+	newNode := Node{State: newState, parent: node, lastMovement: "up"}
+	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileDown(node Node, emptyTilePos Pos) {
+func moveEmptyTileDown(node *Node, emptyTilePos Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X+1][emptyTilePos.Y]
 	newState[emptyTilePos.X+1][emptyTilePos.Y] = 0
 
-	node.children = append(node.children, &Node{State: newState, parent: &node})
+	newNode := Node{State: newState, parent: node, lastMovement: "down"}
+	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileLeft(node Node, emptyTilePos Pos) {
+func moveEmptyTileLeft(node *Node, emptyTilePos Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X][emptyTilePos.Y-1]
 	newState[emptyTilePos.X][emptyTilePos.Y-1] = 0
 
-	node.children = append(node.children, &Node{State: newState, parent: &node})
+	newNode := Node{State: newState, parent: node, lastMovement: "left"}
+	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileRight(node Node, emptyTilePos Pos) {
+func moveEmptyTileRight(node *Node, emptyTilePos Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X][emptyTilePos.Y+1]
 	newState[emptyTilePos.X][emptyTilePos.Y+1] = 0
 
-	node.children = append(node.children, &Node{State: newState, parent: &node})
+	newNode := Node{State: newState, parent: node, lastMovement: "right"}
+	node.children = append(node.children, &newNode)
 }
 
 func (node *Node) Equals(other *Node) bool {
@@ -121,4 +121,25 @@ func (node *Node) Equals(other *Node) bool {
 	}
 
 	return true
+}
+
+func (node *Node) IsGoal() bool {
+	goalState := [3][3]uint8{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}}
+	goalNode := Node{State: goalState}
+	return node.Equals(&goalNode)
+}
+
+func (node *Node) GetMovesToSolution() []string {
+	moves := []string{}
+	tempNode := node
+	for tempNode.parent != nil {
+		moves = append(moves, tempNode.lastMovement)
+		tempNode = tempNode.parent
+	}
+
+	for i, j := 0, len(moves)-1; i < j; i, j = i+1, j-1 {
+		moves[i], moves[j] = moves[j], moves[i]
+	}
+
+	return moves
 }

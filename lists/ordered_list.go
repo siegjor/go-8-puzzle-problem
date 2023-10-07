@@ -18,11 +18,13 @@ type List[T any] struct {
 func (l *List[T]) Insert(val T, index uint64) {
 	item := item[T]{val, nil, index}
 
+	// fmt.Println("inserted val", val)
 	if l.head == nil {
 		l.head = &item
+		// fmt.Println("l.head", l.head)
 		return
 	}
-
+	// fmt.Println("AAAAAA")
 	ptr := l.head
 	if item.index < ptr.index {
 		l.head = &item
@@ -47,6 +49,8 @@ func (l *List[T]) RemoveFirst() {
 }
 
 func (l *List[T]) GetFirst() T {
+	// fmt.Println(l.head)
+
 	if l.head.val != nil {
 		if v, ok := l.head.val.(T); ok {
 			return v
@@ -74,12 +78,21 @@ func getZero[T any]() T {
 }
 
 func (l *List[T]) Contains(c utils.Comparator) bool {
-	contains := true
+	contains := false
 	l.ForEach(func(node nodes.Node) {
 		if c.Equals(&node) {
-			contains = false
+			contains = true
 		}
 	})
 
 	return contains
+}
+
+func (l *List[T]) Length() int {
+	length := 0
+	l.ForEach(func(node nodes.Node) {
+		length += 1
+	})
+
+	return length
 }
