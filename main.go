@@ -11,7 +11,8 @@ func main() {
 	// matrix := [3][3]uint8{{1, 8, 2}, {0, 4, 3}, {7, 6, 5}}
 	// matrix := [3][3]uint8{{4, 0, 6}, {7, 2, 3}, {1, 8, 5}}
 	// matrix := [3][3]uint8{{2, 0, 8}, {6, 4, 5}, {3, 1, 7}}
-	matrix := [3][3]uint8{{8, 6, 7}, {2, 5, 4}, {3, 0, 1}}
+	// matrix := [3][3]uint8{{8, 6, 7}, {2, 5, 4}, {3, 0, 1}}
+	matrix := [3][3]uint8{{6, 4, 7}, {8, 5, 0}, {3, 2, 1}}
 
 	startTime := time.Now()
 	originNode := nodes.Node{State: matrix}

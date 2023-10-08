@@ -15,9 +15,9 @@ type Node struct {
 
 // const SELECTED_STRATEGY = heuristics.UNIFORM_COST
 
-const SELECTED_STRATEGY = heuristics.A_STAR_MANHATTAN
+// const SELECTED_STRATEGY = heuristics.A_STAR_MANHATTAN
 
-// const SELECTED_STRATEGY = heuristics.UNIFORM_COST
+const SELECTED_STRATEGY = heuristics.A_STAR_LINEAR_CONFLICT
 
 func getEmptyTileCoords(node *Node) mutils.Pos {
 	emptyTilePos := mutils.Pos{}
@@ -67,10 +67,12 @@ func calculateTotalCost(node *Node) {
 		node.TotalCost = node.Depth
 		break
 	case heuristics.A_STAR_MANHATTAN:
-		node.HeuristicValue = heuristics.GetSumOfManhattanDistance(node.State)
+		node.HeuristicValue = heuristics.GetAStarManhattanHeuristicValue(node.State)
 		node.TotalCost = node.HeuristicValue + node.Depth
 		break
 	case heuristics.A_STAR_LINEAR_CONFLICT:
+		node.HeuristicValue = heuristics.GetAStarLinearConflictHeuristicValue(node.State)
+		node.TotalCost = node.HeuristicValue + node.Depth
 		break
 	default:
 		break
