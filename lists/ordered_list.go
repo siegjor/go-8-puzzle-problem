@@ -8,23 +8,23 @@ import (
 type item[T any] struct {
 	val   any
 	next  *item[T]
-	index uint64
+	index uint8
 }
 
 type List[T any] struct {
-	head *item[T]
+	head   *item[T]
+	Length uint64
 }
 
-func (l *List[T]) Insert(val T, index uint64) {
+func (l *List[T]) Insert(val T, index uint8) {
 	item := item[T]{val, nil, index}
+	l.Length += 1
 
-	// fmt.Println("inserted val", val)
 	if l.head == nil {
 		l.head = &item
-		// fmt.Println("l.head", l.head)
 		return
 	}
-	// fmt.Println("AAAAAA")
+
 	ptr := l.head
 	if item.index < ptr.index {
 		l.head = &item
@@ -41,6 +41,7 @@ func (l *List[T]) Insert(val T, index uint64) {
 }
 
 func (l *List[T]) RemoveFirst() {
+	l.Length -= 1
 	if l.head != nil && l.head.next != nil {
 		l.head = l.head.next
 	} else {
@@ -49,7 +50,6 @@ func (l *List[T]) RemoveFirst() {
 }
 
 func (l *List[T]) GetFirst() T {
-	// fmt.Println(l.head)
 
 	if l.head.val != nil {
 		if v, ok := l.head.val.(T); ok {
@@ -86,13 +86,4 @@ func (l *List[T]) Contains(c utils.Comparator) bool {
 	})
 
 	return contains
-}
-
-func (l *List[T]) Length() int {
-	length := 0
-	l.ForEach(func(node nodes.Node) {
-		length += 1
-	})
-
-	return length
 }

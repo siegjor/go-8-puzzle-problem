@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
-	matrix := [3][3]uint8{{1, 8, 2}, {0, 4, 3}, {7, 6, 5}}
+	// matrix := [3][3]uint8{{1, 8, 2}, {0, 4, 3}, {7, 6, 5}}
+	// matrix := [3][3]uint8{{4, 0, 6}, {7, 2, 3}, {1, 8, 5}}
+	// matrix := [3][3]uint8{{2, 0, 8}, {6, 4, 5}, {3, 1, 7}}
+	matrix := [3][3]uint8{{8, 6, 7}, {2, 5, 4}, {3, 0, 1}}
 
 	startTime := time.Now()
 	originNode := nodes.Node{State: matrix}
@@ -33,6 +36,13 @@ func main() {
 				openList.Insert(*child, child.TotalCost)
 			}
 		}
+
+		// fmt.Println("open list:")
+		// costSlices := []uint8{}
+		// openList.ForEach(func(node nodes.Node) {
+		// 	costSlices = append(costSlices, node.TotalCost)
+		// })
+		// fmt.Println(costSlices)
 
 		foundGoal = currentNode.IsGoal()
 		if foundGoal {

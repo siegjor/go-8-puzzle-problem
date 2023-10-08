@@ -2,25 +2,25 @@ package nodes
 
 import (
 	"n-puzzle-problem/heuristics"
+	mutils "n-puzzle-problem/matrix_utils"
 )
 
 type Node struct {
 	parent                           *Node
 	State                            [3][3]uint8
 	children                         []*Node
-	Depth, HeuristicValue, TotalCost uint64
+	Depth, HeuristicValue, TotalCost uint8
 	lastMovement                     string
 }
 
-type Pos struct {
-	X int8
-	Y int8
-}
+// const SELECTED_STRATEGY = heuristics.UNIFORM_COST
 
-const SELECTED_STRATEGY = heuristics.UNIFORM_COST
+const SELECTED_STRATEGY = heuristics.A_STAR_MANHATTAN
 
-func getEmptyTileCoords(node *Node) Pos {
-	emptyTilePos := Pos{}
+// const SELECTED_STRATEGY = heuristics.UNIFORM_COST
+
+func getEmptyTileCoords(node *Node) mutils.Pos {
+	emptyTilePos := mutils.Pos{}
 	for i := range node.State {
 		for j := range node.State[i] {
 			if node.State[i][j] == 0 {
@@ -37,20 +37,20 @@ func getEmptyTileCoords(node *Node) Pos {
 func (nodePtr *Node) GenChildren() []*Node {
 	emptyTilePos := getEmptyTileCoords(nodePtr)
 
-	if emptyTilePos.X+1 <= 2 {
-		moveEmptyTileDown(nodePtr, emptyTilePos)
-	}
-
-	if emptyTilePos.X-1 >= 0 {
-		moveEmptyTileUp(nodePtr, emptyTilePos)
+	if emptyTilePos.Y-1 >= 0 {
+		moveEmptyTileLeft(nodePtr, emptyTilePos)
 	}
 
 	if emptyTilePos.Y+1 <= 2 {
 		moveEmptyTileRight(nodePtr, emptyTilePos)
 	}
 
-	if emptyTilePos.Y-1 >= 0 {
-		moveEmptyTileLeft(nodePtr, emptyTilePos)
+	if emptyTilePos.X+1 <= 2 {
+		moveEmptyTileDown(nodePtr, emptyTilePos)
+	}
+
+	if emptyTilePos.X-1 >= 0 {
+		moveEmptyTileUp(nodePtr, emptyTilePos)
 	}
 
 	for _, child := range nodePtr.children {
@@ -67,6 +67,8 @@ func calculateTotalCost(node *Node) {
 		node.TotalCost = node.Depth
 		break
 	case heuristics.A_STAR_MANHATTAN:
+		node.HeuristicValue = heuristics.GetSumOfManhattanDistance(node.State)
+		node.TotalCost = node.HeuristicValue + node.Depth
 		break
 	case heuristics.A_STAR_LINEAR_CONFLICT:
 		break
@@ -75,7 +77,7 @@ func calculateTotalCost(node *Node) {
 	}
 }
 
-func moveEmptyTileUp(node *Node, emptyTilePos Pos) {
+func moveEmptyTileUp(node *Node, emptyTilePos mutils.Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X-1][emptyTilePos.Y]
 	newState[emptyTilePos.X-1][emptyTilePos.Y] = 0
@@ -84,7 +86,7 @@ func moveEmptyTileUp(node *Node, emptyTilePos Pos) {
 	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileDown(node *Node, emptyTilePos Pos) {
+func moveEmptyTileDown(node *Node, emptyTilePos mutils.Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X+1][emptyTilePos.Y]
 	newState[emptyTilePos.X+1][emptyTilePos.Y] = 0
@@ -93,7 +95,7 @@ func moveEmptyTileDown(node *Node, emptyTilePos Pos) {
 	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileLeft(node *Node, emptyTilePos Pos) {
+func moveEmptyTileLeft(node *Node, emptyTilePos mutils.Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X][emptyTilePos.Y-1]
 	newState[emptyTilePos.X][emptyTilePos.Y-1] = 0
@@ -102,7 +104,7 @@ func moveEmptyTileLeft(node *Node, emptyTilePos Pos) {
 	node.children = append(node.children, &newNode)
 }
 
-func moveEmptyTileRight(node *Node, emptyTilePos Pos) {
+func moveEmptyTileRight(node *Node, emptyTilePos mutils.Pos) {
 	newState := node.State
 	newState[emptyTilePos.X][emptyTilePos.Y] = node.State[emptyTilePos.X][emptyTilePos.Y+1]
 	newState[emptyTilePos.X][emptyTilePos.Y+1] = 0

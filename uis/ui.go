@@ -9,9 +9,9 @@ import (
 
 func PrintResults(node *nodes.Node, openList *lists.List[nodes.Node], closedList *lists.List[nodes.Node], elapsedTime *time.Duration) {
 	fmt.Println("\nSuccess!")
-	fmt.Println("> Elapsed time:", elapsedTime.Milliseconds(), "ms")
+	fmt.Println("> Elapsed time:", elapsedTime.Seconds())
 	fmt.Println("> Moves:", node.GetMovesToSolution())
-	fmt.Println("> Total visited nodes:", closedList.Length())
+	fmt.Println("> Total visited nodes:", closedList.Length)
 	fmt.Println("> Depth:", node.Depth)
 	fmt.Println("> Final state:", node.State)
 }
@@ -19,6 +19,7 @@ func PrintResults(node *nodes.Node, openList *lists.List[nodes.Node], closedList
 func PrintNode(node *nodes.Node) {
 	fmt.Println("\n>>> Node:")
 	fmt.Println("> Depth:", node.Depth)
+	fmt.Println("> Heuristic value:", node.HeuristicValue)
 	fmt.Println("> TotalCost:", node.TotalCost)
 	printState(node.State)
 }
