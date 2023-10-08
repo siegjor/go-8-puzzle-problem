@@ -7,13 +7,21 @@ import (
 	"time"
 )
 
-func main() {
-	// matrix := [3][3]uint8{{1, 8, 2}, {0, 4, 3}, {7, 6, 5}}
-	// matrix := [3][3]uint8{{4, 0, 6}, {7, 2, 3}, {1, 8, 5}}
-	// matrix := [3][3]uint8{{2, 0, 8}, {6, 4, 5}, {3, 1, 7}}
-	// matrix := [3][3]uint8{{8, 6, 7}, {2, 5, 4}, {3, 0, 1}}
-	matrix := [3][3]uint8{{6, 4, 7}, {8, 5, 0}, {3, 2, 1}}
+// Easy case:
+// Input: 1 8 2 0 4 3 7 6 5
 
+// Medium cases:
+// Input: 4 0 6 7 2 3 1 8 5
+// Input: 2 0 8 6 4 5 3 1 7
+
+// Hard cases:
+// Input: 8 6 7 2 5 4 3 0 1
+// Input: 6 4 7 8 5 0 3 2 1
+
+const DEBUG bool = false
+
+func main() {
+	matrix := uis.GetMatrixFromUser()
 	startTime := time.Now()
 	originNode := nodes.Node{State: matrix}
 
@@ -24,10 +32,14 @@ func main() {
 	foundGoal := false
 	for !foundGoal {
 		currentNode := openList.GetFirst()
-		// uis.PrintNode(&currentNode)
+		if DEBUG {
+			uis.PrintNode(&currentNode)
+		}
 
 		generatedChildren := currentNode.GenChildren()
-		// uis.PrintChildren(generatedChildren)
+		if DEBUG {
+			uis.PrintChildren(generatedChildren)
+		}
 
 		closedList.Insert(currentNode, currentNode.TotalCost)
 		openList.RemoveFirst()
@@ -48,7 +60,7 @@ func main() {
 		foundGoal = currentNode.IsGoal()
 		if foundGoal {
 			elapsedTime := time.Since(startTime)
-			uis.PrintResults(&currentNode, &openList, &closedList, &elapsedTime)
+			uis.PrintResults(&currentNode, &closedList, &elapsedTime)
 		}
 	}
 }

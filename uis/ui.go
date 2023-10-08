@@ -1,13 +1,58 @@
 package uis
 
 import (
+	"bufio"
 	"fmt"
 	"n-puzzle-problem/lists"
+	mutils "n-puzzle-problem/matrix_utils"
 	"n-puzzle-problem/nodes"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
-func PrintResults(node *nodes.Node, openList *lists.List[nodes.Node], closedList *lists.List[nodes.Node], elapsedTime *time.Duration) {
+func GetMatrixFromUser() [3][3]uint8 {
+	var matrixNumbers [9]uint8
+	for i := 0; i < 999; i++ {
+		matrixNumbers = getUserInput()
+		if !mutils.PuzzleHasSolution(matrixNumbers) {
+			fmt.Println("This puzzle configuration has no solution. Please enter another one!")
+		} else {
+			break
+		}
+	}
+
+	return mutils.ConvertArrayToMatrix(matrixNumbers)
+}
+
+func getUserInput() [9]uint8 {
+	fmt.Println("\nEnter the matrix numbers separated by a whitespace:")
+	fmt.Println("(ex: 1 8 2 0 4 3 7 6 5)")
+
+	var input string
+	var matrixNumbers [9]uint8
+
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+
+	stringNumbers := strings.Fields(input)
+
+	for i, strNumber := range stringNumbers {
+		num, err := strconv.Atoi(strNumber)
+		if err != nil {
+			panic(err)
+		}
+		matrixNumbers[i] = uint8(num)
+	}
+
+	return matrixNumbers
+}
+
+func PrintResults(node *nodes.Node, closedList *lists.List[nodes.Node], elapsedTime *time.Duration) {
 	fmt.Println("\nSuccess!")
 	fmt.Println("> Elapsed time:", elapsedTime.Seconds())
 	fmt.Println("> Moves:", node.GetMovesToSolution())

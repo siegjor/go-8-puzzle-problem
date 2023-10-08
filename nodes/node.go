@@ -5,6 +5,12 @@ import (
 	mutils "n-puzzle-problem/matrix_utils"
 )
 
+// const SELECTED_STRATEGY = heuristics.UNIFORM_COST
+
+// const SELECTED_STRATEGY = heuristics.A_STAR_MANHATTAN
+
+const SELECTED_STRATEGY = heuristics.A_STAR_LINEAR_CONFLICT
+
 type Node struct {
 	parent                           *Node
 	State                            [3][3]uint8
@@ -12,12 +18,6 @@ type Node struct {
 	Depth, HeuristicValue, TotalCost uint8
 	lastMovement                     string
 }
-
-// const SELECTED_STRATEGY = heuristics.UNIFORM_COST
-
-// const SELECTED_STRATEGY = heuristics.A_STAR_MANHATTAN
-
-const SELECTED_STRATEGY = heuristics.A_STAR_LINEAR_CONFLICT
 
 func getEmptyTileCoords(node *Node) mutils.Pos {
 	emptyTilePos := mutils.Pos{}
